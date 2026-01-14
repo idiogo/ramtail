@@ -16,8 +16,11 @@ const rooms = new Map();
 
 // Cria servidor HTTP para servir arquivos estáticos
 const server = http.createServer((req, res) => {
+    // Remove query string da URL para obter o caminho do arquivo
+    const urlWithoutQuery = req.url.split('?')[0];
+
     // Serve arquivos estáticos do diretório raiz
-    let filePath = req.url === '/' ? '/index.html' : req.url;
+    let filePath = urlWithoutQuery === '/' ? '/index.html' : urlWithoutQuery;
     filePath = path.join(__dirname, '..', filePath);
 
     const extname = path.extname(filePath);
@@ -35,7 +38,7 @@ const server = http.createServer((req, res) => {
     fs.readFile(filePath, (err, content) => {
         if (err) {
             res.writeHead(404);
-            res.end('Not Found');
+            res.end('Not Found: ' + filePath);
         } else {
             res.writeHead(200, { 'Content-Type': contentType });
             res.end(content);
