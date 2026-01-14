@@ -70,139 +70,18 @@ export class Renderer {
     }
 
     /**
-     * Desenha a cabeça do carneiro
+     * Desenha a cabeça do carneiro usando emoji
      * @param {Object} head - Posição da cabeça {x, y}
-     * @param {Object} direction - Direção atual do movimento
      */
-    desenharCabeca(head, direction) {
+    desenharCabeca(head) {
         const x = head.x * CELL_SIZE;
         const y = head.y * CELL_SIZE;
-        const padding = 2;
 
-        // Corpo da cabeça (círculo principal - lã)
-        this.ctx.fillStyle = COLORS.LAMB_HEAD;
-        this.ctx.beginPath();
-        this.ctx.arc(
-            x + CELL_SIZE / 2,
-            y + CELL_SIZE / 2,
-            CELL_SIZE / 2 - padding,
-            0,
-            Math.PI * 2
-        );
-        this.ctx.fill();
-
-        // Contorno da cabeça
-        this.ctx.strokeStyle = '#8B8B83';
-        this.ctx.lineWidth = 1;
-        this.ctx.stroke();
-
-        // Desenha o focinho na direção do movimento
-        this.desenharFocinho(x, y, direction);
-
-        // Desenha os olhos
-        this.desenharOlhos(x, y, direction);
-
-        // Desenha as orelhas
-        this.desenharOrelhas(x, y, direction);
-    }
-
-    /**
-     * Desenha o focinho do carneiro
-     * @param {number} x - Posição X do canvas
-     * @param {number} y - Posição Y do canvas
-     * @param {Object} direction - Direção do movimento
-     */
-    desenharFocinho(x, y, direction) {
-        this.ctx.fillStyle = COLORS.LAMB_FACE;
-
-        const centerX = x + CELL_SIZE / 2;
-        const centerY = y + CELL_SIZE / 2;
-        const offset = CELL_SIZE / 4;
-
-        let focinhoX = centerX + direction.x * offset;
-        let focinhoY = centerY + direction.y * offset;
-
-        // Focinho oval
-        this.ctx.beginPath();
-        this.ctx.ellipse(focinhoX, focinhoY, 4, 3, 0, 0, Math.PI * 2);
-        this.ctx.fill();
-    }
-
-    /**
-     * Desenha os olhos do carneiro
-     * @param {number} x - Posição X do canvas
-     * @param {number} y - Posição Y do canvas
-     * @param {Object} direction - Direção do movimento
-     */
-    desenharOlhos(x, y, direction) {
-        const centerX = x + CELL_SIZE / 2;
-        const centerY = y + CELL_SIZE / 2;
-
-        // Posiciona os olhos baseado na direção
-        let olho1X, olho1Y, olho2X, olho2Y;
-
-        if (direction.x !== 0) {
-            // Movendo horizontalmente
-            olho1X = centerX;
-            olho1Y = centerY - 4;
-            olho2X = centerX;
-            olho2Y = centerY + 4;
-        } else {
-            // Movendo verticalmente
-            olho1X = centerX - 4;
-            olho1Y = centerY;
-            olho2X = centerX + 4;
-            olho2Y = centerY;
-        }
-
-        // Desenha os olhos
-        this.ctx.fillStyle = '#000000';
-        this.ctx.beginPath();
-        this.ctx.arc(olho1X, olho1Y, 2, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        this.ctx.beginPath();
-        this.ctx.arc(olho2X, olho2Y, 2, 0, Math.PI * 2);
-        this.ctx.fill();
-    }
-
-    /**
-     * Desenha as orelhas do carneiro
-     * @param {number} x - Posição X do canvas
-     * @param {number} y - Posição Y do canvas
-     * @param {Object} direction - Direção do movimento
-     */
-    desenharOrelhas(x, y, direction) {
-        const centerX = x + CELL_SIZE / 2;
-        const centerY = y + CELL_SIZE / 2;
-
-        this.ctx.fillStyle = COLORS.LAMB_FACE;
-
-        // Posiciona as orelhas nos lados perpendiculares ao movimento
-        let orelha1X, orelha1Y, orelha2X, orelha2Y;
-
-        if (direction.x !== 0) {
-            // Movendo horizontalmente - orelhas em cima e embaixo
-            orelha1X = centerX - direction.x * 3;
-            orelha1Y = centerY - 8;
-            orelha2X = centerX - direction.x * 3;
-            orelha2Y = centerY + 8;
-        } else {
-            // Movendo verticalmente - orelhas nas laterais
-            orelha1X = centerX - 8;
-            orelha1Y = centerY - direction.y * 3;
-            orelha2X = centerX + 8;
-            orelha2Y = centerY - direction.y * 3;
-        }
-
-        // Desenha as orelhas
-        this.ctx.beginPath();
-        this.ctx.ellipse(orelha1X, orelha1Y, 3, 4, 0, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        this.ctx.beginPath();
-        this.ctx.ellipse(orelha2X, orelha2Y, 3, 4, 0, 0, Math.PI * 2);
-        this.ctx.fill();
+        // Usa emoji de carneiro para a cabeça
+        this.ctx.font = `${CELL_SIZE}px Arial`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText('🐏', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
     }
 
     /**
