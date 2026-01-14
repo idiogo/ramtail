@@ -19,6 +19,14 @@ export class Renderer {
      */
     constructor(ctx) {
         this.ctx = ctx;
+
+        // Carrega a imagem da cabeça do carneiro
+        this.ramHeadImage = new Image();
+        this.ramHeadImage.src = 'assets/ram-head.png';
+        this.imageLoaded = false;
+        this.ramHeadImage.onload = () => {
+            this.imageLoaded = true;
+        };
     }
 
     /**
@@ -70,18 +78,33 @@ export class Renderer {
     }
 
     /**
-     * Desenha a cabeça do carneiro usando emoji
+     * Desenha a cabeça do carneiro usando imagem
      * @param {Object} head - Posição da cabeça {x, y}
      */
     desenharCabeca(head) {
         const x = head.x * CELL_SIZE;
         const y = head.y * CELL_SIZE;
 
-        // Usa emoji de carneiro para a cabeça
-        this.ctx.font = `${CELL_SIZE}px Arial`;
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('🐏', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
+        // Tamanho da cabeça (um pouco maior que a célula para destaque)
+        const headSize = CELL_SIZE * 1.8;
+        const offset = (headSize - CELL_SIZE) / 2;
+
+        if (this.imageLoaded) {
+            // Desenha a imagem centralizada na célula
+            this.ctx.drawImage(
+                this.ramHeadImage,
+                x - offset,
+                y - offset,
+                headSize,
+                headSize
+            );
+        } else {
+            // Fallback para emoji enquanto imagem carrega
+            this.ctx.font = `${CELL_SIZE}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText('🐏', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
+        }
     }
 
     /**
