@@ -16,9 +16,6 @@ export class Food {
      * Evita posições ocupadas pelo carneiro
      * @param {Array} occupiedPositions - Posições ocupadas pelo carneiro
      * @param {Object} gameState - Estado do jogo para regras especiais
-     * @param {number} gameState.foodCount - Quantidade de comidas já consumidas
-     * @param {number} gameState.score - Pontuação atual
-     * @param {boolean} gameState.carrotGiven - Se a cenoura garantida já foi dada
      */
     spawn(occupiedPositions = [], gameState = {}) {
         // Define o tipo de comida baseado nas regras especiais
@@ -30,22 +27,29 @@ export class Food {
 
     /**
      * Determina o tipo de comida aplicando regras especiais de progressão
-     * - Milho garantido nos 3 primeiros itens
-     * - Cenoura garantida entre 80 e 120 pontos (uma vez só)
-     * - Depois, probabilidades padrão
+     * - Milho aparece UMA VEZ aleatoriamente entre os 3 primeiros itens
+     * - Cenoura aparece UMA VEZ quando atinge a pontuação alvo (80-120)
+     * - Fora dessas condições, probabilidades padrão
      * @param {Object} gameState - Estado do jogo
      * @returns {Object} - Tipo de comida
      */
     determinarTipoComidaComRegras(gameState) {
-        const { foodCount = 0, score = 0, carrotGiven = false } = gameState;
+        const {
+            foodCount = 0,
+            score = 0,
+            cornGiven = false,
+            cornTargetIndex = 0,
+            carrotGiven = false,
+            carrotTargetScore = 80
+        } = gameState;
 
-        // Regra 1: Milho garantido nos 3 primeiros itens
-        if (foodCount < 3) {
+        // Regra 1: Milho aparece uma vez, no item de índice sorteado (0, 1 ou 2)
+        if (foodCount < 3 && foodCount === cornTargetIndex && !cornGiven) {
             return FOOD_TYPES.CORN;
         }
 
-        // Regra 2: Cenoura garantida entre 80 e 120 pontos (apenas uma vez)
-        if (score >= 80 && score <= 120 && !carrotGiven) {
+        // Regra 2: Cenoura aparece uma vez, quando atinge a pontuação alvo
+        if (score >= carrotTargetScore && !carrotGiven) {
             return FOOD_TYPES.CARROT;
         }
 

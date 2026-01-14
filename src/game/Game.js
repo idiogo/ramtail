@@ -37,8 +37,11 @@ export class Game {
         this.gameLoop = null;
 
         // Contadores para regras especiais de comida
-        this.foodCount = 0;         // Quantidade de comidas consumidas
-        this.carrotGiven = false;   // Se a cenoura garantida já apareceu
+        this.foodCount = 0;           // Quantidade de comidas consumidas
+        this.cornGiven = false;       // Se o milho garantido já apareceu
+        this.cornTargetIndex = 0;     // Em qual item (0-2) o milho garantido aparece
+        this.carrotGiven = false;     // Se a cenoura garantida já apareceu
+        this.carrotTargetScore = 80;  // Em qual pontuação a cenoura garantida aparece
 
         // Configura o handler de input com os callbacks
         this.inputHandler = new InputHandler(
@@ -91,8 +94,15 @@ export class Game {
         this.lamb.reset();
         this.score = 0;
         this.foodCount = 0;
-        this.carrotGiven = false;
         this.state = GAME_STATES.PLAYING;
+
+        // Define aleatoriamente em qual dos 3 primeiros itens o milho aparece (0, 1 ou 2)
+        this.cornGiven = false;
+        this.cornTargetIndex = Math.floor(Math.random() * 3);
+
+        // Define aleatoriamente em qual pontuação (80-120) a cenoura aparece
+        this.carrotGiven = false;
+        this.carrotTargetScore = 80 + Math.floor(Math.random() * 41); // 80 a 120
 
         // Gera a primeira comida (passa o estado do jogo)
         this.food.spawn(this.lamb.getAllPositions(), this.getGameState());
@@ -182,8 +192,13 @@ export class Game {
         // Aumenta o rabo do carneiro
         this.lamb.grow(crescimento);
 
-        // Marca se a cenoura garantida foi dada (entre 80-120 pontos)
-        if (this.food.isCarrot() && this.score >= 80 && this.score <= 120) {
+        // Marca se o milho garantido foi dado (nos 3 primeiros itens)
+        if (this.food.isCorn() && this.foodCount < 3) {
+            this.cornGiven = true;
+        }
+
+        // Marca se a cenoura garantida foi dada
+        if (this.food.isCarrot() && !this.carrotGiven) {
             this.carrotGiven = true;
         }
 
@@ -205,13 +220,16 @@ export class Game {
 
     /**
      * Retorna o estado atual do jogo para as regras de comida
-     * @returns {Object} - Estado com foodCount, score e carrotGiven
+     * @returns {Object} - Estado do jogo para determinar tipo de comida
      */
     getGameState() {
         return {
             foodCount: this.foodCount,
             score: this.score,
-            carrotGiven: this.carrotGiven
+            cornGiven: this.cornGiven,
+            cornTargetIndex: this.cornTargetIndex,
+            carrotGiven: this.carrotGiven,
+            carrotTargetScore: this.carrotTargetScore
         };
     }
 
