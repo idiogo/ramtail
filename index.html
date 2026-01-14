@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LambTail - Um jogo estilo Snake onde você controla um carneiro faminto que come capim e milho!">
+    <meta name="keywords" content="jogo, snake, carneiro, lamb, game, browser game">
+    <meta name="author" content="LambTail">
+
+    <!-- Open Graph para compartilhamento -->
+    <meta property="og:title" content="LambTail - O Carneiro Faminto">
+    <meta property="og:description" content="Controle um carneiro faminto e coma todo o capim e milho que conseguir!">
+    <meta property="og:type" content="website">
+
+    <title>LambTail - O Carneiro Faminto</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="styles/style.css">
+
+    <!-- Favicon emoji -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐑</text></svg>">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Cabeçalho -->
+        <h1 class="game-title">🐑 LambTail 🐑</h1>
+        <p class="game-subtitle">O Carneiro Faminto!</p>
+
+        <!-- Canvas do jogo -->
+        <canvas id="gameCanvas" tabindex="0"></canvas>
+
+        <!-- Controles -->
+        <div class="controls">
+            <h3>Controles</h3>
+            <div class="keys-grid">
+                <div class="key-group">
+                    <span class="key">↑</span>
+                    <span class="key">↓</span>
+                    <span class="key">←</span>
+                    <span class="key">→</span>
+                    <span class="key-label">ou</span>
+                    <span class="key">W</span>
+                    <span class="key">A</span>
+                    <span class="key">S</span>
+                    <span class="key">D</span>
+                    <span class="key-label">para mover</span>
+                </div>
+                <div class="key-group">
+                    <span class="key">ESPAÇO</span>
+                    <span class="key-label">iniciar/reiniciar</span>
+                </div>
+                <div class="key-group">
+                    <span class="key">P</span>
+                    <span class="key-label">pausar</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legenda -->
+        <div class="legend">
+            <span class="legend-item">
+                <span class="legend-emoji">🌿</span>
+                <span>Capim (+1)</span>
+            </span>
+            <span class="legend-item">
+                <span class="legend-emoji">🌽</span>
+                <span>Milho (+2, raro)</span>
+            </span>
+            <span class="legend-item">
+                <span class="legend-emoji">🥕</span>
+                <span>Cenoura (+10, muito rara!)</span>
+            </span>
+        </div>
+
+        <!-- Rodapé -->
+        <div class="footer">
+            <p>Feito com 💚 | Use as setas para mover o carneiro</p>
+        </div>
+    </div>
+
+    <!-- Script principal (módulo ES6) -->
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>

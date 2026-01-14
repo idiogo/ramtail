@@ -1,0 +1,199 @@
+/**
+ * Estilos do jogo LambTail
+ * Layout responsivo e visual agradável
+ */
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Variáveis CSS para fácil customização */
+:root {
+    --cor-fundo: #2d5a27;
+    --cor-container: #1a3a15;
+    --cor-texto: #f0f0f0;
+    --cor-destaque: #90EE90;
+    --sombra: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Corpo da página */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--cor-fundo) 0%, var(--cor-container) 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Container principal */
+.game-container {
+    background: var(--cor-container);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: var(--sombra);
+    text-align: center;
+}
+
+/* Título do jogo */
+.game-title {
+    color: var(--cor-texto);
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Subtítulo */
+.game-subtitle {
+    color: var(--cor-destaque);
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+/* Canvas do jogo */
+#gameCanvas {
+    border: 4px solid var(--cor-destaque);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(144, 238, 144, 0.3);
+    display: block;
+    margin: 0 auto;
+    background: #90EE90;
+}
+
+/* Seção de controles */
+.controls {
+    margin-top: 25px;
+    color: var(--cor-texto);
+}
+
+.controls h3 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: var(--cor-destaque);
+}
+
+/* Grid de teclas */
+.keys-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.key-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Estilo das teclas */
+.key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 35px;
+    height: 35px;
+    padding: 5px 10px;
+    background: linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%);
+    border: 1px solid #5a5a5a;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: bold;
+    box-shadow: 0 3px 0 #1a1a1a, 0 4px 5px rgba(0, 0, 0, 0.3);
+}
+
+.key-label {
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+/* Seção de legenda */
+.legend {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(144, 238, 144, 0.2);
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 15px;
+    color: var(--cor-texto);
+    font-size: 0.95rem;
+}
+
+.legend-emoji {
+    font-size: 1.3rem;
+}
+
+/* Rodapé */
+.footer {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(144, 238, 144, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+}
+
+.footer a {
+    color: var(--cor-destaque);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 680px) {
+    .game-container {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .game-title {
+        font-size: 1.8rem;
+    }
+
+    .game-subtitle {
+        font-size: 0.95rem;
+    }
+
+    #gameCanvas {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .keys-grid {
+        gap: 15px;
+    }
+
+    .key {
+        min-width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+
+    .legend-item {
+        display: block;
+        margin: 8px 0;
+    }
+}
+
+/* Animação suave para o canvas */
+#gameCanvas {
+    transition: box-shadow 0.3s ease;
+}
+
+#gameCanvas:focus {
+    outline: none;
+    box-shadow: 0 0 30px rgba(144, 238, 144, 0.5);
+}
