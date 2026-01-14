@@ -201,9 +201,83 @@ export class Renderer {
     }
 
     /**
-     * Desenha a tela inicial
+     * Desenha um jogador remoto (multiplayer)
+     * @param {Object} head - Posição da cabeça
+     * @param {Array} tail - Array de segmentos do rabo
+     * @param {string} color - Cor do jogador
      */
-    desenharTelaInicial() {
+    desenharJogadorRemoto(head, tail, color) {
+        // Desenha o rabo com a cor do jogador
+        tail.forEach((segment, index) => {
+            const x = segment.x * CELL_SIZE;
+            const y = segment.y * CELL_SIZE;
+            const padding = 3;
+
+            // Usa a cor do jogador com opacidade
+            this.ctx.fillStyle = color;
+            this.ctx.globalAlpha = 0.7;
+
+            this.ctx.beginPath();
+            this.ctx.arc(
+                x + CELL_SIZE / 2,
+                y + CELL_SIZE / 2,
+                CELL_SIZE / 2 - padding,
+                0,
+                Math.PI * 2
+            );
+            this.ctx.fill();
+
+            // Contorno
+            this.ctx.strokeStyle = color;
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
+
+            this.ctx.globalAlpha = 1;
+        });
+
+        // Desenha a cabeça do jogador remoto (emoji com cor)
+        const x = head.x * CELL_SIZE;
+        const y = head.y * CELL_SIZE;
+
+        // Círculo colorido de fundo
+        this.ctx.fillStyle = color;
+        this.ctx.beginPath();
+        this.ctx.arc(
+            x + CELL_SIZE / 2,
+            y + CELL_SIZE / 2,
+            CELL_SIZE / 2,
+            0,
+            Math.PI * 2
+        );
+        this.ctx.fill();
+
+        // Emoji por cima
+        this.ctx.font = `${CELL_SIZE - 2}px Arial`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText('🐏', x + CELL_SIZE / 2, y + CELL_SIZE / 2);
+    }
+
+    /**
+     * Desenha indicador de jogadores online (multiplayer)
+     * @param {number} playerCount - Número de jogadores na sala
+     */
+    desenharIndicadorMultiplayer(playerCount) {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        this.ctx.fillRect(CANVAS_WIDTH - 120, 5, 115, 30);
+
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 14px Arial';
+        this.ctx.textAlign = 'right';
+        this.ctx.textBaseline = 'top';
+        this.ctx.fillText(`👥 ${playerCount} jogador${playerCount > 1 ? 'es' : ''}`, CANVAS_WIDTH - 10, 12);
+    }
+
+    /**
+     * Desenha a tela inicial
+     * @param {boolean} isMultiplayer - Se está em modo multiplayer
+     */
+    desenharTelaInicial(isMultiplayer = false) {
         this.clear();
 
         // Título
@@ -211,23 +285,36 @@ export class Renderer {
         this.ctx.font = 'bold 48px Arial';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('🐑 RamTail 🐑', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 80);
+        this.ctx.fillText('🐑 RamTail 🐑', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 100);
 
         // Subtítulo
         this.ctx.font = '20px Arial';
-        this.ctx.fillText('O Carneiro Faminto!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30);
+        if (isMultiplayer) {
+            this.ctx.fillStyle = '#4ECDC4';
+            this.ctx.fillText('👥 Modo Multiplayer', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 50);
+            this.ctx.fillStyle = COLORS.TEXT;
+        } else {
+            this.ctx.fillText('O Carneiro Faminto!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 50);
+        }
 
         // Instruções
         this.ctx.font = '16px Arial';
-        this.ctx.fillText('🌿 Capim = +1 segmento', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 10);
-        this.ctx.fillText('🌽 Milho = +2 segmentos (raro!)', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 35);
-        this.ctx.fillText('🥕 Cenoura = +10 segmentos (muito rara!)', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 60);
+        this.ctx.fillText('🌿 Capim = +1 segmento', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 5);
+        this.ctx.fillText('🌽 Milho = +2 segmentos (raro!)', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20);
+        this.ctx.fillText('🥕 Cenoura = +10 segmentos (muito rara!)', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 45);
 
         // Controles
-        this.ctx.fillText('Use as SETAS ou WASD para mover', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 100);
+        this.ctx.fillText('Use as SETAS ou WASD para mover', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 85);
+
+        // Dica multiplayer
+        if (isMultiplayer) {
+            this.ctx.fillStyle = '#FF6B6B';
+            this.ctx.fillText('Quem pegar a comida primeiro, ganha!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 115);
+            this.ctx.fillStyle = COLORS.TEXT;
+        }
 
         // Começar
         this.ctx.font = 'bold 20px Arial';
-        this.ctx.fillText('Pressione ESPAÇO para começar', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 150);
+        this.ctx.fillText('Pressione ESPAÇO para começar', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 155);
     }
 }

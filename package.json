@@ -1,0 +1,16 @@
+{
+  "name": "ramtail",
+  "version": "1.0.0",
+  "description": "RamTail - Jogo multiplayer estilo Snake com carneiros",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "server": "node server/index.js"
+  },
+  "keywords": ["game", "snake", "multiplayer", "websocket"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}

@@ -1,19 +1,19 @@
 # 🐑 RamTail - O Carneiro Faminto
 
-Um jogo estilo Snake onde você controla um carneiro faminto que come capim e milho para crescer seu rabo!
+Um jogo estilo Snake onde você controla um carneiro faminto que come capim e milho para crescer seu rabo! Agora com **modo multiplayer**!
 
 ## 📸 Screenshot
 
 ```
 🐑 RamTail 🐑
-O Carneiro Faminto!
+👥 Modo Multiplayer
 
 ┌─────────────────────────────┐
-│ 🌿  🐑~~~~                  │
-│         ~                   │
+│ 🌿  🐑~~~~     🐏~~         │
+│         ~        ~          │
 │              🌽             │
 │                             │
-│     Pontos: 30              │
+│ Pontos: 30    👥 2 jogadores│
 └─────────────────────────────┘
 ```
 
@@ -22,8 +22,9 @@ O Carneiro Faminto!
 1. Pressione **ESPAÇO** para iniciar o jogo
 2. Use as **setas** ou **WASD** para mover o carneiro
 3. Coma o **capim** (🌿) para crescer 1 segmento
-4. Coma o **milho** (🌽) para crescer 2 segmentos (aparece 10% das vezes!)
-5. **Não** encoste no seu próprio rabo ou nas paredes!
+4. Coma o **milho** (🌽) para crescer 2 segmentos (raro!)
+5. Coma a **cenoura** (🥕) para crescer 10 segmentos (muito rara!)
+6. **Não** encoste no seu próprio rabo ou nas paredes!
 
 ### Controles
 
@@ -36,50 +37,55 @@ O Carneiro Faminto!
 | ESPAÇO | Iniciar / Reiniciar |
 | P / ESC | Pausar |
 
-## 🚀 Como Rodar Localmente
+## 🚀 Como Rodar
 
-### Opção 1: Servidor HTTP simples (Recomendado)
+### Modo Single Player (simples)
 
-O jogo usa módulos ES6, então precisa de um servidor HTTP. Escolha uma das opções:
+Use qualquer servidor HTTP:
 
-**Com Python 3:**
 ```bash
 cd snake
 python3 -m http.server 8080
 ```
 
-**Com Python 2:**
+Acesse: `http://localhost:8080`
+
+### Modo Multiplayer
+
+O multiplayer requer o servidor Node.js:
+
 ```bash
+# 1. Instale as dependências
 cd snake
-python -m SimpleHTTPServer 8080
+npm install
+
+# 2. Inicie o servidor
+npm start
 ```
 
-**Com Node.js (npx):**
-```bash
-cd snake
-npx serve
-```
+Acesse: `http://localhost:3000`
 
-**Com PHP:**
-```bash
-cd snake
-php -S localhost:8080
-```
+#### Jogando com amigos
 
-Depois, abra no navegador: `http://localhost:8080`
+1. Acesse `http://localhost:3000?room=NOME_DA_SALA`
+2. Compartilhe o link com seus amigos
+3. Todos que acessarem o mesmo link estarão na mesma sala!
+4. **Quem pegar a comida primeiro, ganha o crescimento!**
 
-### Opção 2: Extensão Live Server (VS Code)
-
-1. Instale a extensão "Live Server" no VS Code
-2. Clique com botão direito no `index.html`
-3. Selecione "Open with Live Server"
+Exemplos:
+- `http://localhost:3000?room=amigos`
+- `http://localhost:3000?room=familia`
+- `http://localhost:3000?room=trabalho`
 
 ## 📦 Estrutura do Projeto
 
 ```
 snake/
 ├── index.html              # Página principal
+├── package.json            # Dependências Node.js
 ├── README.md               # Este arquivo
+├── server/
+│   └── index.js            # Servidor WebSocket multiplayer
 ├── src/
 │   ├── main.js             # Ponto de entrada
 │   ├── game/
@@ -89,72 +95,67 @@ snake/
 │   │   └── Food.js         # Sistema de comida
 │   ├── render/
 │   │   └── Renderer.js     # Renderização no canvas
-│   └── input/
-│       └── InputHandler.js # Controles do teclado
+│   ├── input/
+│   │   └── InputHandler.js # Controles do teclado
+│   └── network/
+│       └── NetworkManager.js # Gerenciador de rede
 ├── styles/
 │   └── style.css           # Estilos da página
-└── assets/                 # Pasta para recursos (sprites, sons)
+└── assets/
+    └── ram-head.png        # Imagem da cabeça do carneiro
 ```
 
-## 🌐 Deploy no GitHub Pages
+## 🌐 Deploy
 
-1. **Crie um repositório** no GitHub
+### GitHub Pages (Single Player apenas)
 
-2. **Inicialize o Git e faça push:**
-```bash
-cd snake
-git init
-git add .
-git commit -m "Initial commit: RamTail game"
-git branch -M main
-git remote add origin https://github.com/SEU_USUARIO/ramtail.git
-git push -u origin main
-```
+O GitHub Pages suporta apenas o modo single player (sem servidor WebSocket):
 
-3. **Ative o GitHub Pages:**
-   - Vá em Settings > Pages
-   - Em "Source", selecione "Deploy from a branch"
-   - Selecione a branch `main` e pasta `/ (root)`
-   - Clique em "Save"
+1. Faça push do código para o GitHub
+2. Ative GitHub Pages nas configurações
+3. Acesse: `https://SEU_USUARIO.github.io/ramtail/`
 
-4. **Acesse seu jogo em:**
-   ```
-   https://SEU_USUARIO.github.io/ramtail/
-   ```
+### Servidor próprio (Multiplayer)
+
+Para multiplayer, você precisa hospedar o servidor Node.js:
+
+1. **Heroku, Railway, Render** - Plataformas que suportam Node.js
+2. **VPS** - DigitalOcean, AWS, etc.
 
 ## 🏗️ Arquitetura
 
-O projeto segue uma arquitetura modular com separação de responsabilidades:
-
-- **Game Logic** (`src/game/`): Contém toda a lógica do jogo
-  - `Game.js`: Orquestra o game loop e estados
-  - `Lamb.js`: Controla o carneiro e seu rabo
-  - `Food.js`: Gerencia a comida (capim e milho)
-  - `constants.js`: Configurações centralizadas
-
-- **Rendering** (`src/render/`): Responsável pela parte visual
-  - `Renderer.js`: Desenha todos os elementos no canvas
-
-- **Input** (`src/input/`): Gerencia entradas do usuário
-  - `InputHandler.js`: Captura e processa eventos de teclado
+```
+┌─────────────────────────────────────────────────────┐
+│                    CLIENTE                          │
+├─────────────────────────────────────────────────────┤
+│  main.js ─── Game.js ─── Renderer.js               │
+│              │   │                                  │
+│              │   └── Lamb.js, Food.js              │
+│              │                                      │
+│              └── NetworkManager.js (multiplayer)   │
+└──────────────────────┬──────────────────────────────┘
+                       │ WebSocket
+┌──────────────────────┴──────────────────────────────┐
+│                   SERVIDOR                          │
+├─────────────────────────────────────────────────────┤
+│  server/index.js                                    │
+│  - Gerencia salas de jogo                          │
+│  - Sincroniza posições dos jogadores               │
+│  - Valida quem pegou comida primeiro               │
+└─────────────────────────────────────────────────────┘
+```
 
 ## ⚙️ Configurações
 
-As constantes do jogo podem ser ajustadas em `src/game/constants.js`:
+As constantes do jogo em `src/game/constants.js`:
 
 ```javascript
-// Tamanho do canvas
-CANVAS_WIDTH: 600
-CANVAS_HEIGHT: 600
-
-// Tamanho de cada célula do grid
-CELL_SIZE: 20
-
-// Velocidade (menor = mais rápido)
-GAME_SPEED: 150
-
-// Probabilidade de milho (10 = 10%)
-CORN_PROBABILITY: 10
+CANVAS_WIDTH: 600       // Largura do canvas
+CANVAS_HEIGHT: 600      // Altura do canvas
+CELL_SIZE: 20           // Tamanho de cada célula
+GAME_SPEED: 150         // Velocidade (menor = mais rápido)
+CORN_PROBABILITY: 10    // Chance de milho (10%)
+CARROT_PROBABILITY: 2   // Chance de cenoura (2%)
 ```
 
 ## 🤝 Contribuindo
