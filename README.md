@@ -1,11 +1,11 @@
-# 🐑 LambTail - O Carneiro Faminto
+# 🐑 RamTail - O Carneiro Faminto
 
 Um jogo estilo Snake onde você controla um carneiro faminto que come capim e milho para crescer seu rabo!
 
 ## 📸 Screenshot
 
 ```
-🐑 LambTail 🐑
+🐑 RamTail 🐑
 O Carneiro Faminto!
 
 ┌─────────────────────────────┐
@@ -105,9 +105,9 @@ snake/
 cd snake
 git init
 git add .
-git commit -m "Initial commit: LambTail game"
+git commit -m "Initial commit: RamTail game"
 git branch -M main
-git remote add origin https://github.com/SEU_USUARIO/lambtail.git
+git remote add origin https://github.com/SEU_USUARIO/ramtail.git
 git push -u origin main
 ```
 
@@ -119,7 +119,7 @@ git push -u origin main
 
 4. **Acesse seu jogo em:**
    ```
-   https://SEU_USUARIO.github.io/lambtail/
+   https://SEU_USUARIO.github.io/ramtail/
    ```
 
 ## 🏗️ Arquitetura

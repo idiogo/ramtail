@@ -1,5 +1,5 @@
 /**
- * Constantes do jogo LambTail
+ * Constantes do jogo RamTail
  * Define todas as configurações e valores fixos utilizados no jogo
  */
 

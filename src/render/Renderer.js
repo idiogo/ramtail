@@ -309,7 +309,7 @@ export class Renderer {
         this.ctx.font = 'bold 48px Arial';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('🐑 LambTail 🐑', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 80);
+        this.ctx.fillText('🐑 RamTail 🐑', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 80);
 
         // Subtítulo
         this.ctx.font = '20px Arial';
