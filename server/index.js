@@ -171,7 +171,8 @@ function sendRoomState(ws, roomId, playerId) {
             tail: player.tail,
             direction: player.direction,
             score: player.score,
-            color: player.color
+            color: player.color,
+            emoji: player.emoji || '🐏'
         };
     });
 
@@ -195,9 +196,25 @@ wss.on('connection', (ws, req) => {
     // Obtém ou cria a sala
     const room = getOrCreateRoom(roomId);
 
-    // Cores para diferenciar jogadores
-    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
+    // Cores bem distintas para diferenciar jogadores (alta saturação e contraste)
+    const colors = [
+        '#FF0000',  // Vermelho puro
+        '#00FF00',  // Verde limão
+        '#0080FF',  // Azul céu
+        '#FF00FF',  // Magenta
+        '#FFD700',  // Dourado
+        '#00FFFF',  // Ciano
+        '#FF6600',  // Laranja
+        '#9400D3',  // Violeta escuro
+        '#32CD32',  // Verde lima
+        '#FF1493',  // Rosa pink
+        '#00CED1',  // Turquesa escuro
+        '#FF4500',  // Laranja avermelhado
+    ];
     const playerColor = colors[room.players.size % colors.length];
+
+    // Emoji padrão (será atualizado quando o jogador escolher)
+    const defaultEmoji = '🐏';
 
     // Adiciona jogador à sala
     room.players.set(playerId, {
@@ -206,7 +223,8 @@ wss.on('connection', (ws, req) => {
         tail: [],
         direction: { x: 1, y: 0 },
         score: 0,
-        color: playerColor
+        color: playerColor,
+        emoji: defaultEmoji
     });
 
     // Se é o primeiro jogador, gera a comida
@@ -221,7 +239,8 @@ wss.on('connection', (ws, req) => {
     broadcastToRoom(roomId, {
         type: 'player_joined',
         playerId,
-        color: playerColor
+        color: playerColor,
+        emoji: defaultEmoji
     }, playerId);
 
     // Gerencia mensagens do cliente
@@ -304,6 +323,18 @@ wss.on('connection', (ws, req) => {
                     broadcastToRoom(roomId, {
                         type: 'player_restarted',
                         playerId
+                    }, playerId);
+                    break;
+
+                case 'change_emoji':
+                    // Jogador mudou seu emoji
+                    player.emoji = message.emoji;
+
+                    // Notifica outros jogadores
+                    broadcastToRoom(roomId, {
+                        type: 'player_changed_emoji',
+                        playerId,
+                        emoji: message.emoji
                     }, playerId);
                     break;
             }

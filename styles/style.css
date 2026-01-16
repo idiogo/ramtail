@@ -1,95 +1,190 @@
 /**
  * Estilos do jogo RamTail
- * Layout responsivo e visual agradável
+ * Design inspirado em pastagem com visual amigavel
  */
 
-/* Reset básico */
+/* Reset basico */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Variáveis CSS para fácil customização */
+/* Variaveis CSS */
 :root {
-    --cor-fundo: #2d5a27;
-    --cor-container: #1a3a15;
-    --cor-texto: #f0f0f0;
-    --cor-destaque: #90EE90;
-    --sombra: 0 10px 30px rgba(0, 0, 0, 0.5);
+    /* Cores do tema */
+    --cor-ceu-topo: #87CEEB;
+    --cor-ceu-base: #B0E0E6;
+    --cor-colina-fundo: #5B8C51;
+    --cor-colina-frente: #4A7A42;
+    --cor-container: #3D6B35;
+    --cor-container-escuro: #2D5229;
+    --cor-canvas: #7BC96F;
+    --cor-canvas-claro: #8FD882;
+    --cor-grid: rgba(107, 181, 96, 0.5);
+    --cor-texto: #FFFFFF;
+    --cor-texto-escuro: #2D5229;
+    --cor-destaque: #FFD93D;
+    --cor-botao: #4A8C3F;
+    --cor-botao-hover: #5AA04D;
+
+    /* Sombras */
+    --sombra-container: 0 20px 60px rgba(0, 0, 0, 0.4);
+    --sombra-canvas: inset 0 4px 15px rgba(0, 0, 0, 0.15);
+    --sombra-tecla: 0 3px 0 #1a1a1a, 0 4px 8px rgba(0, 0, 0, 0.3);
+
+    /* Espacamentos */
+    --radius-grande: 24px;
+    --radius-medio: 16px;
+    --radius-pequeno: 8px;
 }
 
-/* Corpo da página */
+/* Corpo da pagina */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, var(--cor-fundo) 0%, var(--cor-container) 100%);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
 }
 
-/* Container principal */
+/* ========== BACKGROUND ========== */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.sky {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        var(--cor-ceu-topo) 0%,
+        var(--cor-ceu-base) 60%,
+        #C5E8CE 100%
+    );
+}
+
+.hills {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 45%;
+}
+
+.hill {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    border-radius: 50% 50% 0 0;
+}
+
+.hill-back {
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        var(--cor-colina-fundo) 0%,
+        #4A7A42 100%
+    );
+}
+
+.hill-front {
+    height: 70%;
+    background: linear-gradient(
+        to bottom,
+        var(--cor-colina-frente) 0%,
+        #3D6B35 100%
+    );
+    transform: translateY(10%);
+}
+
+/* ========== CONTAINER PRINCIPAL (escondido - canvas fullscreen) ========== */
 .game-container {
-    background: var(--cor-container);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: var(--sombra);
-    text-align: center;
+    display: none;
 }
 
-/* Título do jogo */
+/* ========== CABECALHO ========== */
+.game-header {
+    margin-bottom: 20px;
+}
+
 .game-title {
     color: var(--cor-texto);
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin-bottom: 5px;
+    text-shadow: 2px 3px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 1px;
 }
 
-/* Subtítulo */
 .game-subtitle {
-    color: var(--cor-destaque);
+    color: rgba(255, 255, 255, 0.85);
     font-size: 1.1rem;
-    margin-bottom: 20px;
-    opacity: 0.9;
+    font-weight: 600;
 }
 
-/* Canvas do jogo */
+/* ========== AREA DO CANVAS (fullscreen) ========== */
+.canvas-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cor-canvas);
+    z-index: 1;
+}
+
 #gameCanvas {
-    border: 4px solid var(--cor-destaque);
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(144, 238, 144, 0.3);
     display: block;
-    margin: 0 auto;
-    background: #90EE90;
+    background: var(--cor-canvas);
+    cursor: pointer;
 }
 
-/* Seção de controles */
+#gameCanvas:focus {
+    outline: none;
+}
+
+/* ========== SECAO DE CONTROLES ========== */
 .controls {
     margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.controls-title {
+    font-size: 1.1rem;
+    font-weight: 700;
     color: var(--cor-texto);
-}
-
-.controls h3 {
-    font-size: 1.2rem;
     margin-bottom: 15px;
-    color: var(--cor-destaque);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
-/* Grid de teclas */
 .keys-grid {
     display: flex;
     justify-content: center;
-    gap: 30px;
+    align-items: center;
+    gap: 25px;
     flex-wrap: wrap;
 }
 
 .key-group {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 /* Estilo das teclas */
@@ -97,103 +192,74 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 35px;
-    height: 35px;
-    padding: 5px 10px;
-    background: linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%);
-    border: 1px solid #5a5a5a;
+    min-width: 32px;
+    height: 32px;
+    padding: 4px 8px;
+    background: linear-gradient(180deg, #f5f5f5 0%, #d9d9d9 100%);
+    border: 1px solid #c0c0c0;
     border-radius: 6px;
-    color: #fff;
-    font-size: 0.9rem;
-    font-weight: bold;
-    box-shadow: 0 3px 0 #1a1a1a, 0 4px 5px rgba(0, 0, 0, 0.3);
+    color: #333;
+    font-size: 0.8rem;
+    font-weight: 700;
+    box-shadow: var(--sombra-tecla);
+    font-family: inherit;
+}
+
+.key-wide {
+    min-width: 70px;
+    font-size: 0.75rem;
 }
 
 .key-label {
-    color: #aaa;
-    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 
-/* Seção de legenda */
+/* ========== LEGENDA ========== */
 .legend {
     margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(144, 238, 144, 0.2);
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
 }
 
 .legend-item {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
-    margin: 0 15px;
     color: var(--cor-texto);
-    font-size: 0.95rem;
 }
 
 .legend-emoji {
     font-size: 1.3rem;
 }
 
-/* Rodapé */
+.legend-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* ========== RODAPE ========== */
 .footer {
-    margin-top: 25px;
+    margin-top: 20px;
     padding-top: 15px;
-    border-top: 1px solid rgba(144, 238, 144, 0.2);
-    color: rgba(255, 255, 255, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer p {
+    color: rgba(255, 255, 255, 0.5);
     font-size: 0.85rem;
+    font-weight: 600;
 }
 
-.footer a {
-    color: var(--cor-destaque);
-    text-decoration: none;
+/* ========== SPARKLE DECORATIVO (escondido em modo fullscreen) ========== */
+.sparkle {
+    display: none;
 }
 
-.footer a:hover {
-    text-decoration: underline;
-}
-
-/* Responsividade para telas menores */
-@media (max-width: 680px) {
-    .game-container {
-        padding: 15px;
-        border-radius: 15px;
-    }
-
-    .game-title {
-        font-size: 1.8rem;
-    }
-
-    .game-subtitle {
-        font-size: 0.95rem;
-    }
-
-    #gameCanvas {
-        max-width: 100%;
-        height: auto;
-    }
-
-    .keys-grid {
-        gap: 15px;
-    }
-
-    .key {
-        min-width: 30px;
-        height: 30px;
-        font-size: 0.8rem;
-    }
-
-    .legend-item {
-        display: block;
-        margin: 8px 0;
-    }
-}
-
-/* Animação suave para o canvas */
-#gameCanvas {
-    transition: box-shadow 0.3s ease;
-}
-
-#gameCanvas:focus {
-    outline: none;
-    box-shadow: 0 0 30px rgba(144, 238, 144, 0.5);
-}
+/* ========== RESPONSIVIDADE ========== */
+/* Canvas é responsivo automaticamente via JavaScript */

@@ -3,7 +3,7 @@
  * Gerencia o estado e comportamento do carneiro no jogo
  */
 
-import { DIRECTIONS, GRID_WIDTH, GRID_HEIGHT } from './constants.js';
+import { DIRECTIONS, dimensions } from './constants.js';
 
 export class Lamb {
     constructor() {
@@ -15,8 +15,8 @@ export class Lamb {
      */
     reset() {
         // Posição inicial no centro do grid
-        const startX = Math.floor(GRID_WIDTH / 2);
-        const startY = Math.floor(GRID_HEIGHT / 2);
+        const startX = Math.floor(dimensions.gridWidth / 2);
+        const startY = Math.floor(dimensions.gridHeight / 2);
 
         // A cabeça do carneiro (posição fixa, só muda de direção)
         this.head = { x: startX, y: startY };
@@ -97,9 +97,9 @@ export class Lamb {
     checkWallCollision() {
         return (
             this.head.x < 0 ||
-            this.head.x >= GRID_WIDTH ||
+            this.head.x >= dimensions.gridWidth ||
             this.head.y < 0 ||
-            this.head.y >= GRID_HEIGHT
+            this.head.y >= dimensions.gridHeight
         );
     }
 
@@ -114,11 +114,56 @@ export class Lamb {
     }
 
     /**
-     * Verifica se o carneiro colidiu com algo
+     * Verifica se o carneiro colidiu com algo (paredes ou próprio rabo)
      * @returns {boolean} - true se houve alguma colisão
      */
     hasCollided() {
         return this.checkWallCollision() || this.checkSelfCollision();
+    }
+
+    /**
+     * Verifica colisão com outro jogador (cabeça ou rabo)
+     * @param {Object} otherPlayer - Dados do outro jogador {head, tail}
+     * @returns {boolean} - true se colidiu com o outro jogador
+     */
+    checkCollisionWithPlayer(otherPlayer) {
+        if (!otherPlayer || !otherPlayer.head) return false;
+
+        // Verifica colisão com a cabeça do outro jogador
+        if (this.head.x === otherPlayer.head.x && this.head.y === otherPlayer.head.y) {
+            return true;
+        }
+
+        // Verifica colisão com o rabo do outro jogador
+        if (otherPlayer.tail && otherPlayer.tail.length > 0) {
+            return otherPlayer.tail.some(segment =>
+                segment.x === this.head.x && segment.y === this.head.y
+            );
+        }
+
+        return false;
+    }
+
+    /**
+     * Verifica colisão com múltiplos jogadores
+     * @param {Map|Object} players - Map ou objeto de jogadores {playerId: {head, tail}}
+     * @param {string} excludeId - ID do jogador a excluir da verificação (próprio)
+     * @returns {string|null} - ID do jogador com quem colidiu, ou null se não houve colisão
+     */
+    checkCollisionWithPlayers(players, excludeId = null) {
+        // Suporta tanto Map quanto objeto simples
+        const entries = players instanceof Map ? players.entries() : Object.entries(players);
+
+        for (const [playerId, playerData] of entries) {
+            // Ignora o próprio jogador
+            if (playerId === excludeId) continue;
+
+            if (this.checkCollisionWithPlayer(playerData)) {
+                return playerId;
+            }
+        }
+
+        return null;
     }
 
     /**

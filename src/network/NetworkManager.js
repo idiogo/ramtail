@@ -90,7 +90,8 @@ export class NetworkManager {
                     tail: [],
                     direction: { x: 1, y: 0 },
                     score: 0,
-                    color: message.color
+                    color: message.color,
+                    emoji: message.emoji || '🐏'
                 });
 
                 if (this.callbacks.onPlayerJoined) {
@@ -142,6 +143,18 @@ export class NetworkManager {
             case 'player_restarted':
                 if (this.callbacks.onPlayerRestarted) {
                     this.callbacks.onPlayerRestarted(message);
+                }
+                break;
+
+            case 'player_changed_emoji':
+                // Atualiza o emoji do outro jogador
+                const emojiPlayer = this.otherPlayers.get(message.playerId);
+                if (emojiPlayer) {
+                    emojiPlayer.emoji = message.emoji;
+                }
+
+                if (this.callbacks.onPlayerChangedEmoji) {
+                    this.callbacks.onPlayerChangedEmoji(message);
                 }
                 break;
         }
@@ -196,6 +209,19 @@ export class NetworkManager {
 
         this.send({
             type: 'restart'
+        });
+    }
+
+    /**
+     * Envia mudança de emoji para o servidor
+     * @param {string} emoji - Novo emoji escolhido
+     */
+    sendEmoji(emoji) {
+        if (!this.connected) return;
+
+        this.send({
+            type: 'change_emoji',
+            emoji
         });
     }
 

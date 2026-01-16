@@ -4,7 +4,7 @@
  * Suporta modo single player e multiplayer
  */
 
-import { GAME_SPEED, FOOD_TYPES } from './constants.js';
+import { GAME_SPEED, FOOD_TYPES, ANIMAL_EMOJIS, dimensions } from './constants.js';
 import { Lamb } from './Lamb.js';
 import { Food } from './Food.js';
 import { Renderer } from '../render/Renderer.js';
@@ -25,6 +25,9 @@ export class Game {
      * @param {NetworkManager} network - Gerenciador de rede (opcional, para multiplayer)
      */
     constructor(canvas, network = null) {
+        // Referência ao canvas para click handling
+        this.canvas = canvas;
+
         // Obtém o contexto 2D do canvas
         this.ctx = canvas.getContext('2d');
 
@@ -44,6 +47,14 @@ export class Game {
         this.score = 0;
         this.gameLoop = null;
 
+        // Controle de velocidade/aceleração
+        this.isAccelerating = false;
+        this.currentSpeed = GAME_SPEED;
+
+        // Seleção de emoji
+        this.selectedEmojiIndex = 0;
+        this.emojiPositions = []; // Para detecção de clique
+
         // Contadores para regras especiais de comida (modo single player)
         this.foodCount = 0;
         this.cornGiven = false;
@@ -55,16 +66,21 @@ export class Game {
         this.inputHandler = new InputHandler(
             this.handleDirectionChange.bind(this),
             this.handleStart.bind(this),
-            this.handlePause.bind(this)
+            this.handlePause.bind(this),
+            this.handleEmojiNavigation.bind(this),
+            this.handleAccelerationChange.bind(this)
         );
+
+        // Configura o click handler no canvas
+        this.canvas.addEventListener('click', this.handleCanvasClick.bind(this));
 
         // Se multiplayer, configura callbacks de rede
         if (this.isMultiplayer) {
             this.setupNetworkCallbacks();
         }
 
-        // Renderiza a tela inicial
-        this.renderer.desenharTelaInicial(this.isMultiplayer);
+        // Renderiza a tela inicial e guarda posições dos emojis
+        this.emojiPositions = this.renderer.desenharTelaInicial(this.isMultiplayer, this.selectedEmojiIndex);
     }
 
     /**
@@ -175,6 +191,119 @@ export class Game {
     }
 
     /**
+     * Callback para navegação de emoji (← →)
+     * @param {number} direction - -1 para esquerda, 1 para direita
+     */
+    handleEmojiNavigation(direction) {
+        // Só funciona no menu e game over
+        if (this.state !== GAME_STATES.MENU && this.state !== GAME_STATES.GAME_OVER) {
+            return;
+        }
+
+        const totalEmojis = ANIMAL_EMOJIS.length;
+        this.selectedEmojiIndex = (this.selectedEmojiIndex + direction + totalEmojis) % totalEmojis;
+
+        // Atualiza a tela
+        this.atualizarTelaSelecao();
+
+        // Sincroniza com servidor se multiplayer
+        this.sincronizarEmoji();
+    }
+
+    /**
+     * Callback para clique no canvas
+     * @param {MouseEvent} event - Evento de clique
+     */
+    handleCanvasClick(event) {
+        // Só funciona no menu e game over
+        if (this.state !== GAME_STATES.MENU && this.state !== GAME_STATES.GAME_OVER) {
+            return;
+        }
+
+        // Calcula posição do clique relativa ao canvas
+        const rect = this.canvas.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const clickY = event.clientY - rect.top;
+
+        // Verifica se clicou em algum emoji
+        for (const pos of this.emojiPositions) {
+            if (clickX >= pos.x && clickX <= pos.x + pos.width &&
+                clickY >= pos.y && clickY <= pos.y + pos.height) {
+                this.selectedEmojiIndex = pos.index;
+                this.atualizarTelaSelecao();
+                this.sincronizarEmoji();
+                break;
+            }
+        }
+    }
+
+    /**
+     * Atualiza a tela de seleção (menu ou game over)
+     */
+    atualizarTelaSelecao() {
+        if (this.state === GAME_STATES.MENU) {
+            this.emojiPositions = this.renderer.desenharTelaInicial(this.isMultiplayer, this.selectedEmojiIndex);
+        } else if (this.state === GAME_STATES.GAME_OVER) {
+            this.emojiPositions = this.renderer.desenharGameOverComSeletor(this.score, this.selectedEmojiIndex);
+        }
+    }
+
+    /**
+     * Sincroniza emoji escolhido com o servidor (multiplayer)
+     */
+    sincronizarEmoji() {
+        if (this.isMultiplayer && this.network) {
+            const selectedEmoji = ANIMAL_EMOJIS[this.selectedEmojiIndex].emoji;
+            this.network.sendEmoji(selectedEmoji);
+        }
+    }
+
+    /**
+     * Retorna o emoji atualmente selecionado
+     * @returns {string} - Emoji selecionado
+     */
+    getSelectedEmoji() {
+        return ANIMAL_EMOJIS[this.selectedEmojiIndex].emoji;
+    }
+
+    /**
+     * Callback para mudança de aceleração
+     * @param {boolean} accelerating - true se está acelerando
+     */
+    handleAccelerationChange(accelerating) {
+        // Só funciona durante o jogo
+        if (this.state !== GAME_STATES.PLAYING) {
+            return;
+        }
+
+        this.isAccelerating = accelerating;
+
+        // Reinicia o loop com a nova velocidade
+        this.restartGameLoopWithSpeed();
+    }
+
+    /**
+     * Reinicia o game loop com a velocidade atual
+     */
+    restartGameLoopWithSpeed() {
+        if (this.state !== GAME_STATES.PLAYING) return;
+
+        // Para o loop atual
+        if (this.gameLoop) {
+            clearInterval(this.gameLoop);
+        }
+
+        // Calcula a nova velocidade (2x mais rápido se acelerando)
+        this.currentSpeed = this.isAccelerating ? GAME_SPEED / 2 : GAME_SPEED;
+
+        // Reinicia com a nova velocidade
+        this.gameLoop = setInterval(() => {
+            this.update();
+            this.render();
+        }, this.currentSpeed);
+    }
+
+    /**
      * Inicia uma nova partida
      */
     iniciarJogo() {
@@ -182,6 +311,8 @@ export class Game {
         this.lamb.reset();
         this.score = 0;
         this.foodCount = 0;
+        this.isAccelerating = false;
+        this.currentSpeed = GAME_SPEED;
         this.state = GAME_STATES.PLAYING;
 
         // Modo single player: configura regras de comida
@@ -230,7 +361,8 @@ export class Game {
             this.network.sendDeath();
         }
 
-        this.renderer.desenharGameOver(this.score);
+        // Usa tela de game over com seletor de emoji
+        this.emojiPositions = this.renderer.desenharGameOverComSeletor(this.score, this.selectedEmojiIndex);
     }
 
     /**
@@ -242,7 +374,7 @@ export class Game {
         this.gameLoop = setInterval(() => {
             this.update();
             this.render();
-        }, GAME_SPEED);
+        }, this.currentSpeed);
     }
 
     /**
@@ -268,6 +400,19 @@ export class Game {
         if (this.lamb.hasCollided()) {
             this.finalizarJogo();
             return;
+        }
+
+        // Verifica colisão com outros jogadores (multiplayer)
+        if (this.isMultiplayer) {
+            const otherPlayers = this.network.getOtherPlayers();
+            const collidedWithId = this.lamb.checkCollisionWithPlayers(otherPlayers);
+
+            if (collidedWithId) {
+                // Colidiu com outro jogador - morre!
+                console.log(`💀 Você colidiu com o jogador ${collidedWithId}!`);
+                this.finalizarJogo();
+                return;
+            }
         }
 
         // Envia posição para o servidor (multiplayer)
@@ -352,8 +497,8 @@ export class Game {
             this.renderizarOutrosJogadores();
         }
 
-        // Desenha o carneiro local
-        this.renderer.desenharCarneiro(this.lamb);
+        // Desenha o carneiro local com o emoji selecionado
+        this.renderer.desenharCarneiro(this.lamb, this.getSelectedEmoji());
 
         // Desenha a pontuação
         this.renderer.desenharPontuacao(this.score);
@@ -377,7 +522,8 @@ export class Game {
                 this.renderer.desenharJogadorRemoto(
                     player.head,
                     player.tail,
-                    player.color
+                    player.color,
+                    player.emoji || '🐏'
                 );
             }
         });
@@ -388,16 +534,19 @@ export class Game {
      */
     mostrarPausa() {
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        this.ctx.fillRect(0, 0, 600, 600);
+        this.ctx.fillRect(0, 0, dimensions.canvasWidth, dimensions.canvasHeight);
+
+        const centerX = dimensions.canvasWidth / 2;
+        const centerY = dimensions.canvasHeight / 2;
 
         this.ctx.fillStyle = '#FFFFFF';
         this.ctx.font = 'bold 36px Arial';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('⏸️ PAUSADO ⏸️', 300, 280);
+        this.ctx.fillText('⏸️ PAUSADO ⏸️', centerX, centerY - 20);
 
         this.ctx.font = '18px Arial';
-        this.ctx.fillText('Pressione ESPAÇO ou P para continuar', 300, 330);
+        this.ctx.fillText('Pressione ESPAÇO ou P para continuar', centerX, centerY + 30);
     }
 
     /**
@@ -412,5 +561,35 @@ export class Game {
      */
     getScore() {
         return this.score;
+    }
+
+    /**
+     * Chamado quando a janela é redimensionada
+     * Re-renderiza a tela atual
+     */
+    onResize() {
+        // Re-renderiza baseado no estado atual
+        const GAME_STATES = {
+            MENU: 'menu',
+            PLAYING: 'playing',
+            PAUSED: 'paused',
+            GAME_OVER: 'gameOver'
+        };
+
+        switch (this.state) {
+            case GAME_STATES.MENU:
+                this.emojiPositions = this.renderer.desenharTelaInicial(this.isMultiplayer, this.selectedEmojiIndex);
+                break;
+            case GAME_STATES.PLAYING:
+                this.render();
+                break;
+            case GAME_STATES.PAUSED:
+                this.render();
+                this.mostrarPausa();
+                break;
+            case GAME_STATES.GAME_OVER:
+                this.emojiPositions = this.renderer.desenharGameOverComSeletor(this.score, this.selectedEmojiIndex);
+                break;
+        }
     }
 }

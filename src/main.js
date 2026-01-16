@@ -6,7 +6,7 @@
 
 import { Game } from './game/Game.js';
 import { NetworkManager } from './network/NetworkManager.js';
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from './game/constants.js';
+import { dimensions, updateDimensions } from './game/constants.js';
 
 /**
  * Obtém o ID da sala da query string
@@ -15,6 +15,22 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from './game/constants.js';
 function getRoomId() {
     const params = new URLSearchParams(window.location.search);
     return params.get('room');
+}
+
+/**
+ * Atualiza o tamanho do canvas para ocupar toda a janela
+ * @param {HTMLCanvasElement} canvas - O canvas do jogo
+ */
+function resizeCanvas(canvas) {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // Atualiza as dimensões globais
+    updateDimensions(width, height);
+
+    // Aplica ao canvas
+    canvas.width = dimensions.canvasWidth;
+    canvas.height = dimensions.canvasHeight;
 }
 
 /**
@@ -30,9 +46,8 @@ function init() {
         return;
     }
 
-    // Configura as dimensões do canvas
-    canvas.width = CANVAS_WIDTH;
-    canvas.height = CANVAS_HEIGHT;
+    // Configura as dimensões do canvas para ocupar a tela
+    resizeCanvas(canvas);
 
     // Verifica se há uma sala na query string
     const roomId = getRoomId();
@@ -68,6 +83,16 @@ function init() {
         console.log('🐑 RamTail Single Player iniciado!');
         console.log('💡 Dica: Adicione ?room=NOME_DA_SALA na URL para jogar multiplayer');
     }
+
+    // Listener para redimensionamento da janela
+    window.addEventListener('resize', () => {
+        resizeCanvas(canvas);
+
+        // Re-renderiza o jogo se existir
+        if (window.ramTailGame) {
+            window.ramTailGame.onResize();
+        }
+    });
 }
 
 // Aguarda o DOM carregar antes de inicializar

@@ -3,7 +3,7 @@
  * Gerencia a geração e estado da comida no jogo (capim, milho e cenoura)
  */
 
-import { GRID_WIDTH, GRID_HEIGHT, FOOD_TYPES, CORN_PROBABILITY, CARROT_PROBABILITY } from './constants.js';
+import { dimensions, FOOD_TYPES, CORN_PROBABILITY, CARROT_PROBABILITY } from './constants.js';
 
 export class Food {
     constructor() {
@@ -92,8 +92,8 @@ export class Food {
         // Tenta gerar posição até encontrar uma válida
         while (!isValid) {
             newPosition = {
-                x: Math.floor(Math.random() * GRID_WIDTH),
-                y: Math.floor(Math.random() * GRID_HEIGHT)
+                x: Math.floor(Math.random() * dimensions.gridWidth),
+                y: Math.floor(Math.random() * dimensions.gridHeight)
             };
 
             // Verifica se a posição não está ocupada

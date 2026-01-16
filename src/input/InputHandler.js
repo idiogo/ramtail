@@ -11,14 +11,22 @@ export class InputHandler {
      * @param {Function} onDirectionChange - Callback quando a direção muda
      * @param {Function} onStart - Callback para iniciar/reiniciar o jogo
      * @param {Function} onPause - Callback para pausar o jogo
+     * @param {Function} onEmojiNavigation - Callback para navegar entre emojis (-1 ou 1)
+     * @param {Function} onAccelerationChange - Callback quando aceleração muda (true/false)
      */
-    constructor(onDirectionChange, onStart, onPause) {
+    constructor(onDirectionChange, onStart, onPause, onEmojiNavigation = null, onAccelerationChange = null) {
         this.onDirectionChange = onDirectionChange;
         this.onStart = onStart;
         this.onPause = onPause;
+        this.onEmojiNavigation = onEmojiNavigation;
+        this.onAccelerationChange = onAccelerationChange;
 
-        // Bind do método para manter contexto
+        // Rastreia teclas de movimento pressionadas
+        this.pressedKeys = new Set();
+
+        // Bind dos métodos para manter contexto
         this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleKeyUp = this.handleKeyUp.bind(this);
 
         // Inicia escutando eventos
         this.iniciar();
@@ -29,6 +37,7 @@ export class InputHandler {
      */
     iniciar() {
         document.addEventListener('keydown', this.handleKeyDown);
+        document.addEventListener('keyup', this.handleKeyUp);
     }
 
     /**
@@ -36,6 +45,7 @@ export class InputHandler {
      */
     parar() {
         document.removeEventListener('keydown', this.handleKeyDown);
+        document.removeEventListener('keyup', this.handleKeyUp);
     }
 
     /**
@@ -50,6 +60,20 @@ export class InputHandler {
             event.preventDefault();
             const direction = DIRECTIONS[KEY_BINDINGS[key]];
             this.onDirectionChange(direction);
+
+            // Rastreia tecla pressionada para aceleração
+            const wasEmpty = this.pressedKeys.size === 0;
+            this.pressedKeys.add(key);
+
+            // Notifica aceleração se é a primeira tecla pressionada
+            if (wasEmpty && this.onAccelerationChange) {
+                this.onAccelerationChange(true);
+            }
+
+            // Se for seta esquerda/direita, também tenta navegar emoji (menu/game over)
+            if (this.onEmojiNavigation && (key === 'ArrowLeft' || key === 'ArrowRight')) {
+                this.onEmojiNavigation(key === 'ArrowLeft' ? -1 : 1);
+            }
             return;
         }
 
@@ -65,6 +89,24 @@ export class InputHandler {
             event.preventDefault();
             this.onPause();
             return;
+        }
+    }
+
+    /**
+     * Processa o evento de tecla solta
+     * @param {KeyboardEvent} event - Evento do teclado
+     */
+    handleKeyUp(event) {
+        const key = event.key;
+
+        // Remove tecla do rastreamento
+        if (KEY_BINDINGS[key]) {
+            this.pressedKeys.delete(key);
+
+            // Notifica fim da aceleração se nenhuma tecla está pressionada
+            if (this.pressedKeys.size === 0 && this.onAccelerationChange) {
+                this.onAccelerationChange(false);
+            }
         }
     }
 
